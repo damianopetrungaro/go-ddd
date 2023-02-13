@@ -1,0 +1,12 @@
+pkgname: internal
+output: cmd/internal/repo/postgres/internal
+no-tests: true
+no-auto-timestamps: true
+psql:
+  dbname: order-service
+  user: postgres
+  pass: ""
+  host: localhost
+  port: 5432
+  sslmode: "disable"
+  whitelist: ["orders"]

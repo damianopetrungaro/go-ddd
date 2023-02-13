@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+  
+  postgres:
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./config/database/Dockerfile
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=order-service
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d order-service" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
