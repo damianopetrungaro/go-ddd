@@ -30,8 +30,8 @@ func New(db *sql.DB, logger golog.Logger) *Postgres {
 	}
 }
 
-// Find queries an order from the database
-func (p *Postgres) Find(ctx context.Context, id order.ID) (*order.Order, error) {
+// Get queries an order from the database
+func (p *Postgres) Get(ctx context.Context, id order.ID) (*order.Order, error) {
 	model, err := internal.Orders(
 		qm.Where("id=?", id.String()),
 	).One(ctx, p.db)

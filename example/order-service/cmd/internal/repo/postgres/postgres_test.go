@@ -31,7 +31,7 @@ func TestPostgres_Add(t *testing.T) {
 	matchesOrder(t, o, found)
 }
 
-func TestOrderRepo_GetOrder(t *testing.T) {
+func TestOrderRepo_Get(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	t.Cleanup(func() {
 		cancel()
@@ -42,7 +42,7 @@ func TestOrderRepo_GetOrder(t *testing.T) {
 	repo := getPostgres(t, db)
 
 	addOrderHelper(t, repo.db, o)
-	found, err := repo.Find(ctx, o.ID)
+	found, err := repo.Get(ctx, o.ID)
 	if err != nil {
 		t.Fatalf("could not get order: %v", o)
 	}

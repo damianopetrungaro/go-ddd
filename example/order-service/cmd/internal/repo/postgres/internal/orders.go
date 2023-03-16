@@ -474,7 +474,7 @@ func Orders(mods ...qm.QueryMod) orderQuery {
 }
 
 // FindOrder retrieves a single record by ID with an executor.
-// If selectCols is empty Find will return all columns.
+// If selectCols is empty Get will return all columns.
 func FindOrder(ctx context.Context, exec boil.ContextExecutor, iD string, selectCols ...string) (*Order, error) {
 	orderObj := &Order{}
 

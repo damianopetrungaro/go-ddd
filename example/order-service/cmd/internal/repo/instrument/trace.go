@@ -58,9 +58,9 @@ func (_d RepoWithTracing) Add(ctx context.Context, order *order.Order) (err erro
 	return _d.Repo.Add(ctx, order)
 }
 
-// Find implements order.Repo
-func (_d RepoWithTracing) Find(ctx context.Context, id order.ID) (op1 *order.Order, err error) {
-	ctx, _span := otel.Tracer(_d._instance).Start(ctx, "order.Repo.Find")
+// Get implements order.Repo
+func (_d RepoWithTracing) Get(ctx context.Context, id order.ID) (op1 *order.Order, err error) {
+	ctx, _span := otel.Tracer(_d._instance).Start(ctx, "order.Repo.Get")
 	defer func() {
 		if _d._spanDecorator != nil {
 			_d._spanDecorator(_span, map[string]interface{}{
@@ -78,5 +78,5 @@ func (_d RepoWithTracing) Find(ctx context.Context, id order.ID) (op1 *order.Ord
 
 		_span.End()
 	}()
-	return _d.Repo.Find(ctx, id)
+	return _d.Repo.Get(ctx, id)
 }

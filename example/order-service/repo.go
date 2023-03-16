@@ -11,7 +11,8 @@ var (
 )
 
 // Repo represents the layer to read/write data from/to the storage
+// You can also consider splitting this interface into multiple ones
 type Repo interface {
-	Find(ctx context.Context, id ID) (*Order, error)
+	Get(ctx context.Context, id ID) (*Order, error)
 	Add(ctx context.Context, order *Order) error
 }

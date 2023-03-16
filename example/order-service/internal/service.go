@@ -44,7 +44,7 @@ func (s *Service) Place(ctx context.Context, n order.Number, uID order.UserID) (
 
 // MarkAsShipped marks as shipped an order and store it in the repository
 func (s *Service) MarkAsShipped(ctx context.Context, id order.ID) (*order.Order, error) {
-	o, err := s.repo.Find(ctx, id)
+	o, err := s.repo.Get(ctx, id)
 	if err != nil {
 		s.logger.With(golog.Err(err)).Error(ctx, "order was not found")
 		return nil, fmt.Errorf("%w: %w", ErrNotMarkedAsShipped, err)
@@ -65,7 +65,7 @@ func (s *Service) MarkAsShipped(ctx context.Context, id order.ID) (*order.Order,
 
 // MarkAsDelivered marks as delivered an order and store it in the repository
 func (s *Service) MarkAsDelivered(ctx context.Context, id order.ID) (*order.Order, error) {
-	o, err := s.repo.Find(ctx, id)
+	o, err := s.repo.Get(ctx, id)
 	if err != nil {
 		s.logger.With(golog.Err(err)).Error(ctx, "order was not found")
 		return nil, fmt.Errorf("%w: %w", ErrNotMarkedAsDelivered, err)

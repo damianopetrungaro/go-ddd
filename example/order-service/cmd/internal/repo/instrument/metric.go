@@ -53,8 +53,8 @@ func (_d RepoWithPrometheus) Add(ctx context.Context, order *order.Order) (err e
 	return _d.base.Add(ctx, order)
 }
 
-// Find implements order.Repo
-func (_d RepoWithPrometheus) Find(ctx context.Context, id order.ID) (op1 *order.Order, err error) {
+// Get implements order.Repo
+func (_d RepoWithPrometheus) Get(ctx context.Context, id order.ID) (op1 *order.Order, err error) {
 	_since := time.Now()
 	defer func() {
 		result := "ok"
@@ -62,7 +62,7 @@ func (_d RepoWithPrometheus) Find(ctx context.Context, id order.ID) (op1 *order.
 			result = "error"
 		}
 
-		repoDurationSummaryVec.WithLabelValues(_d.instanceName, "Find", result).Observe(time.Since(_since).Seconds())
+		repoDurationSummaryVec.WithLabelValues(_d.instanceName, "Get", result).Observe(time.Since(_since).Seconds())
 	}()
-	return _d.base.Find(ctx, id)
+	return _d.base.Get(ctx, id)
 }

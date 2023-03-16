@@ -35,9 +35,9 @@ func New(base order.Repo, store cache.Cache[order.ID, *order.Order], logger golo
 	return &Cache{base: base, store: store, logger: logger}
 }
 
-// Find tries getting an order from the cache storage first
+// Get tries getting an order from the cache storage first
 // if not found calls the Find method of the base
-func (c *Cache) Find(ctx context.Context, id order.ID) (*order.Order, error) {
+func (c *Cache) Get(ctx context.Context, id order.ID) (*order.Order, error) {
 	o, err := c.store.Get(ctx, id)
 	switch err {
 	case nil:
@@ -45,7 +45,7 @@ func (c *Cache) Find(ctx context.Context, id order.ID) (*order.Order, error) {
 		return o, nil
 	default:
 		c.logger.With(golog.Err(err)).Debug(ctx, "order was not found in cache")
-		o, err := c.base.Find(ctx, id)
+		o, err := c.base.Get(ctx, id)
 		if err != nil {
 			return nil, err
 		}

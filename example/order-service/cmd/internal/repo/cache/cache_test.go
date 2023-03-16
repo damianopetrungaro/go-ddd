@@ -70,7 +70,7 @@ func TestCache_Add(t *testing.T) {
 	})
 }
 
-func TestCache_Find(t *testing.T) {
+func TestCache_Get(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		t.Cleanup(func() {
@@ -87,7 +87,7 @@ func TestCache_Find(t *testing.T) {
 
 		cachedRepo := New(repo, DefaultStore(), logger)
 
-		found, err := cachedRepo.Find(ctx, o.ID)
+		found, err := cachedRepo.Get(ctx, o.ID)
 		if err != nil {
 			t.Fatalf("could not find order: %s", err)
 		}
@@ -98,7 +98,7 @@ func TestCache_Find(t *testing.T) {
 			t.Errorf("want: %v", o)
 		}
 
-		found, err = cachedRepo.Find(ctx, o.ID)
+		found, err = cachedRepo.Get(ctx, o.ID)
 		if err != nil {
 			t.Fatalf("could not find order: %s", err)
 		}
@@ -126,12 +126,12 @@ func TestCache_Find(t *testing.T) {
 
 		cachedRepo := New(repo, DefaultStore(), logger)
 
-		_, err := cachedRepo.Find(ctx, o.ID)
+		_, err := cachedRepo.Get(ctx, o.ID)
 		if !errors.Is(err, order.ErrNotFound) {
 			t.Fatalf("could find order: %s", err)
 		}
 
-		_, err = cachedRepo.Find(ctx, o.ID)
+		_, err = cachedRepo.Get(ctx, o.ID)
 		if !errors.Is(err, order.ErrNotFound) {
 			t.Fatalf("could find order: %s", err)
 		}

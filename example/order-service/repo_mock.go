@@ -49,9 +49,9 @@ func (mr *MockRepoMockRecorder) Add(ctx, order interface{}) *gomock.Call {
 }
 
 // Find mocks base method.
-func (m *MockRepo) Find(ctx context.Context, id ID) (*Order, error) {
+func (m *MockRepo) Get(ctx context.Context, id ID) (*Order, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Find", ctx, id)
+	ret := m.ctrl.Call(m, "Get", ctx, id)
 	ret0, _ := ret[0].(*Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -60,5 +60,5 @@ func (m *MockRepo) Find(ctx context.Context, id ID) (*Order, error) {
 // Find indicates an expected call of Find.
 func (mr *MockRepoMockRecorder) Find(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Find", reflect.TypeOf((*MockRepo)(nil).Find), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRepo)(nil).Get), ctx, id)
 }
