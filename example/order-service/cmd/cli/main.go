@@ -5,6 +5,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/damianopetrungaro/golog"
 	"github.com/damianopetrungaro/golog/opentelemetry"
 	_ "github.com/lib/pq"
@@ -13,15 +17,11 @@ import (
 	"github.com/organization/order-service/cmd/internal/repo/instrument"
 	"github.com/organization/order-service/cmd/internal/repo/postgres"
 	"github.com/organization/order-service/internal"
-	"log"
-	"os"
-	"time"
 )
 
 // This is a really "quick" implementation
 // Feel free to open PR to make this more structured for a better real-world CLI example :)
 func main() {
-
 	var action, id, number, userID string
 	flag.StringVar(&action, "action", "", "place, order, deliver")
 	flag.StringVar(&number, "number", "", "order number to use when placing an order")
@@ -32,12 +32,25 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	logger, flusher := newLogger()
+	logger, flusher, err := newLogger()
+	if err != nil {
+		log.Fatalf("getting new logger: %s", err)
+	}
 	defer func() {
-		flusher.Flush()
+		if err = flusher.Flush(); err != nil {
+			logger.With(golog.Err(err)).Error(ctx, "could not flush logger")
+		}
 	}()
 
-	db := newDB(ctx, logger)
+	db, err := newDB()
+	if err != nil {
+		logger.With(golog.Err(err)).Fatal(ctx, "could not connect to database")
+	}
+	defer func() {
+		if err = db.Close(); err != nil {
+			logger.With(golog.Err(err)).Error(ctx, "could not close database")
+		}
+	}()
 	repo := newRepo(db, logger)
 
 	svc := internal.NewService(repo, logger)
@@ -57,7 +70,7 @@ func main() {
 			code = 2
 			break
 		}
-		logger.With(golog.String("oder", fmt.Sprintf("%v", o))).Debug(ctx, "order was placed")
+		logger.With(golog.String("order", fmt.Sprintf("%v", o))).Debug(ctx, "order was placed")
 	case "ship":
 		_id, err := order.ParseID(id)
 		if err != nil {
@@ -71,7 +84,7 @@ func main() {
 			code = 2
 			break
 		}
-		logger.With(golog.String("oder", fmt.Sprintf("%v", o))).Debug(ctx, "order was shipped")
+		logger.With(golog.String("order", fmt.Sprintf("%v", o))).Debug(ctx, "order was shipped")
 	case "deliver":
 		_id, err := order.ParseID(id)
 		if err != nil {
@@ -85,7 +98,7 @@ func main() {
 			code = 2
 			break
 		}
-		logger.With(golog.String("oder", fmt.Sprintf("%v", o))).Debug(ctx, "order was delviered")
+		logger.With(golog.String("order", fmt.Sprintf("%v", o))).Debug(ctx, "order was delviered")
 	default:
 		logger.Error(ctx, "action not valid")
 	}
@@ -94,23 +107,24 @@ func main() {
 	os.Exit(code)
 }
 
-func newLogger() (golog.Logger, golog.Flusher) {
+func newLogger() (gl golog.Logger, gf golog.Flusher, err error) {
 	lvl, err := golog.ParseLevel(os.Getenv("LOG_LEVEL"))
 	if err != nil {
-		log.Fatalf("could not parse log level: %s", err)
+		return gl, gf, err
 	}
+	gl, gf = opentelemetry.NewProductionLogger(lvl)
 
-	return opentelemetry.NewProductionLogger(lvl)
+	return gl, gf, nil
 }
 
-func newDB(ctx context.Context, logger golog.Logger) *sql.DB {
+func newDB() (*sql.DB, error) {
 	const driver = "postgres"
 	db, err := sql.Open(driver, os.Getenv("DB_URL"))
 	if err != nil {
-		logger.With(golog.Err(err)).Fatal(ctx, "could not connect to database")
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
 
 func newRepo(db *sql.DB, logger golog.Logger) order.Repo {
